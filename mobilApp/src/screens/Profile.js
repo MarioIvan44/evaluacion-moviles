@@ -13,6 +13,7 @@ import CustomCard from '../components/CustomCard.jsx';
 
 export default function Profile() {
   const [usuario, setUsuario] = useState(null);
+  const [errorImagen, setErrorImagen] = useState(false);
 
   useEffect(() => {
     const cargarUsuario = async () => {
@@ -34,11 +35,12 @@ export default function Profile() {
       {/* Profile Image */}
       <Image
         source={
-          usuario?.imagenUrl
+          usuario?.imagenUrl && !errorImagen
             ? { uri: usuario.imagenUrl }
             : require('../../assets/splash.png')
         }
         style={styles.logo}
+        onError={() => setErrorImagen(true)}
       />
 
       {/* Title */}
