@@ -1,95 +1,28 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-} from 'react-native';
-
+import { View, StyleSheet } from 'react-native';
 import { colors } from '../styles/colors.js';
-import CustomButton from '../components/CustomButton.jsx';
-import CustomCard from "../components/CustomCard.jsx";
 
-export default function Profile() {
+export default function CustomCard({
+  children,
+  backgroundColor = colors.platinum,
+  borderRadius = 15,
+  padding = 20,
+}) {
   return (
-    <View style={styles.container}>
-
-      {/* Profile Image */}
-      <Image
-        source={require('./assets/logo.png')}
-        style={styles.logo}
-      />
-
-      {/* Title */}
-      <Text style={styles.title}>Mi perfil</Text>
-
-      {/* User information */}
-      <CustomCard
-        backgroundColor={colors.platinum}
-        borderRadius={15}
-        padding={20}
-      >
-        <View style={styles.infoContainer}>
-
-          <Text style={styles.label}>Nombre completo</Text>
-          <Text style={styles.value}>Juan Pérez</Text>
-
-          <Text style={styles.label}>Fecha de nacimiento</Text>
-          <Text style={styles.value}>01/01/2000</Text>
-
-          <Text style={styles.label}>Carnet institucional</Text>
-          <Text style={styles.value}>20240001</Text>
-
-        </View>
-      </CustomCard>
-
-      {/* Button */}
-      <CustomButton
-        title="Editar perfil"
-        onPress={() => {
-          console.log('Editando perfil');
-        }}
-      />
-
+    <View style={[styles.card, { backgroundColor, borderRadius, padding }]}>
+      {children}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: colors.platinum,
-  },
-
-  logo: {
-    width: 120,
-    height: 120,
-    resizeMode: 'contain',
-    marginBottom: 20,
-  },
-
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 25,
-  },
-
-  infoContainer: {
+  card: {
     width: '100%',
-  },
-
-  label: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: colors.carbonBlack,
-    marginBottom: 5,
-  },
-
-  value: {
-    fontSize: 16,
-    marginBottom: 15,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
 });

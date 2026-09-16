@@ -1,23 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   Image,
   StyleSheet,
+  Alert,
 } from 'react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import {colors} from "../styles/colors.js"
+import { auth } from '../config/firebase.js';
 import CustomButton from '../components/CustomButton.jsx';
 import CustomInput from '../components/CustomInput.jsx';
 
-export default function Login() {
+export default function Login({ navigation }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, email.trim(), password);
+      navigation.navigate('Profile');
+    } catch (error) {
+      Alert.alert('Error al iniciar sesión', error.message);
+    }
+  };
+
   return (
     <View style={styles.container}>
 
       {/* Imagen / Logo */}
       <Image
-        source={require('./assets/logo.png')}
+        source={require('../../assets/splash.png')}
         style={styles.logo}
       />
 
@@ -28,16 +42,27 @@ export default function Login() {
         <CustomInput
           label="Correo electrónico"
           placeholder="Correo electrónico"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
         />
 
         {/* Password input */}
         <CustomInput
           label="Contraseña"
           placeholder="Contraseña"
-         
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
         />
       {/* Button */}
-        <CustomButton title='Iniciar sesión' onPress={() => {console.log('Iniciar sesión')}}/>
+        <CustomButton title='Iniciar sesión' onPress={handleLogin}/>
+
+        {/* Link a registro */}
+        <TouchableOpacity onPress={() => navigation.navigate('UserRegister')} style={styles.registerLink}>
+          <Text style={styles.registerText}>¿No tienes cuenta? Regístrate</Text>
+        </TouchableOpacity>
     </View>
   );
 }
@@ -88,5 +113,15 @@ const styles = StyleSheet.create({
     color: colors.platinum,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+
+  registerLink: {
+    marginTop: 20,
+  },
+
+  registerText: {
+    color: colors.cornFlowerOcean,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
