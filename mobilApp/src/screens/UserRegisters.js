@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import {
-  View,
   Text,
   Image,
   StyleSheet,
   Alert,
+  ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -25,8 +26,8 @@ export default function UserRegister({ navigation }) {
   const handleRegister = async () => {
     const correo = email.trim();
 
-    if (!correo || !password) {
-      Alert.alert('Faltan datos', 'Ingresa correo y contraseña');
+    if (!nombre || !fechaNacimiento || !carnet || !imagenUrl || !correo || !password) {
+      Alert.alert('Faltan datos', 'Completa todos los campos');
       return;
     }
 
@@ -40,16 +41,13 @@ export default function UserRegister({ navigation }) {
         imagenUrl,
         email: correo,
       });
-
-      Alert.alert('Listo', 'Usuario registrado correctamente');
-      navigation.navigate('Login');
     } catch (error) {
       Alert.alert('Error al registrar', error.message);
     }
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
 
       {/* Imagen / Logo */}
       <Image
@@ -117,13 +115,18 @@ export default function UserRegister({ navigation }) {
         onPress={handleRegister}
       />
 
-    </View>
+      {/* Link a login */}
+      <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.loginLink}>
+        <Text style={styles.loginText}>¿Ya tienes cuenta? Inicia sesión</Text>
+      </TouchableOpacity>
+
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -141,5 +144,15 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 25,
+  },
+
+  loginLink: {
+    marginTop: 20,
+  },
+
+  loginText: {
+    color: colors.cornFlowerOcean,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

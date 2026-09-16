@@ -21,8 +21,6 @@ const firebaseConfig = {
   appId: APP_ID
 };
 
-console.log("Valor de configuración", firebaseConfig);
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 

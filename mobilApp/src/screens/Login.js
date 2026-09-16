@@ -18,9 +18,15 @@ export default function Login({ navigation }) {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
+    const correo = email.trim();
+
+    if (!correo || !password) {
+      Alert.alert('Faltan datos', 'Ingresa correo y contraseña');
+      return;
+    }
+
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
-      navigation.navigate('Profile');
+      await signInWithEmailAndPassword(auth, correo, password);
     } catch (error) {
       Alert.alert('Error al iniciar sesión', error.message);
     }

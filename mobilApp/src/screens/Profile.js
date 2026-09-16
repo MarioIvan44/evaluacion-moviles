@@ -1,19 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View,
   Text,
   Image,
   StyleSheet,
+  ScrollView,
+  Alert,
 } from 'react-native';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 
 import { colors } from '../styles/colors.js';
 import { auth, database } from '../config/firebase.js';
 import CustomCard from '../components/CustomCard.jsx';
+import CustomButton from '../components/CustomButton.jsx';
+import CustomInput from '../components/CustomInput.jsx';
 
 export default function Profile() {
   const [usuario, setUsuario] = useState(null);
   const [errorImagen, setErrorImagen] = useState(false);
+  const [editando, setEditando] = useState(false);
+
+  const [nombre, setNombre] = useState('');
+  const [fechaNacimiento, setFechaNacimiento] = useState('');
+  const [carnet, setCarnet] = useState('');
+  const [imagenUrl, setImagenUrl] = useState('');
 
   useEffect(() => {
     const cargarUsuario = async () => {
@@ -22,15 +32,37 @@ export default function Profile() {
 
       const snapshot = await getDoc(doc(database, 'usuarios', uid));
       if (snapshot.exists()) {
-        setUsuario(snapshot.data());
+        const datos = snapshot.data();
+        setUsuario(datos);
+        setNombre(datos.nombre || '');
+        setFechaNacimiento(datos.fechaNacimiento || '');
+        setCarnet(datos.carnet || '');
+        setImagenUrl(datos.imagenUrl || '');
       }
     };
 
     cargarUsuario();
   }, []);
 
+  const guardarCambios = async () => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+
+    await updateDoc(doc(database, 'usuarios', uid), {
+      nombre,
+      fechaNacimiento,
+      carnet,
+      imagenUrl,
+    });
+
+    setUsuario({ ...usuario, nombre, fechaNacimiento, carnet, imagenUrl });
+    setErrorImagen(false);
+    setEditando(false);
+    Alert.alert('Listo', 'Perfil actualizado');
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
 
       {/* Profile Image */}
       <Image
@@ -49,27 +81,50 @@ export default function Profile() {
       {/* User information */}
       <CustomCard backgroundColor={colors.platinum} borderRadius={15} padding={20}>
 
-        <Text style={styles.label}>Nombre completo</Text>
-        <Text style={styles.value}>{usuario?.nombre || '-'}</Text>
+        {editando ? (
+          <>
+            <CustomInput label="Nombre completo" placeholder="Nombre completo" value={nombre} onChangeText={setNombre} />
+            <CustomInput label="Fecha de nacimiento" placeholder="DD/MM/AAAA" value={fechaNacimiento} onChangeText={setFechaNacimiento} />
+            <CustomInput label="Carnet institucional" placeholder="Ej. 20240001" value={carnet} onChangeText={setCarnet} />
+            <CustomInput label="URL de imagen" placeholder="https://ejemplo.com/imagen.jpg" value={imagenUrl} onChangeText={setImagenUrl} />
+          </>
+        ) : (
+          <>
+            <Text style={styles.label}>Nombre completo</Text>
+            <Text style={styles.value}>{usuario?.nombre || '-'}</Text>
 
-        <Text style={styles.label}>Fecha de nacimiento</Text>
-        <Text style={styles.value}>{usuario?.fechaNacimiento || '-'}</Text>
+            <Text style={styles.label}>Fecha de nacimiento</Text>
+            <Text style={styles.value}>{usuario?.fechaNacimiento || '-'}</Text>
 
-        <Text style={styles.label}>Carnet institucional</Text>
-        <Text style={styles.value}>{usuario?.carnet || '-'}</Text>
+            <Text style={styles.label}>Carnet institucional</Text>
+            <Text style={styles.value}>{usuario?.carnet || '-'}</Text>
 
-        <Text style={styles.label}>Correo electrónico</Text>
-        <Text style={styles.value}>{usuario?.email || auth.currentUser?.email || '-'}</Text>
+            <Text style={styles.label}>Correo electrónico</Text>
+            <Text style={styles.value}>{usuario?.email || auth.currentUser?.email || '-'}</Text>
+          </>
+        )}
 
       </CustomCard>
 
-    </View>
+      {editando ? (
+        <CustomButton title="Guardar cambios" onPress={guardarCambios} />
+      ) : (
+        <CustomButton title="Editar perfil" onPress={() => setEditando(true)} />
+      )}
+
+      <CustomButton
+        title="Cerrar sesión"
+        backgroundColor={colors.carbonBlack}
+        onPress={() => signOut(auth)}
+      />
+
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
